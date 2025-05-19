@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  email       String   @unique
+  passwordHash String
+  role        Role
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  products    Product[]
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model Product {
+  id           String         @id @default(uuid())
+  productName  String
+  lotNumber    String
+  truckNumber  String
+  source       String
+  upc          String
+  asin         String?
+  link         String?
+  condition    Condition
+  damaged      Boolean
+  missingItems Boolean
+  whatsMissing String?
+  notes        String?
+  mixedId      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  images       ProductImage[]
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id])
+}
+
+enum Condition {
+  NEW
+  USED
+  PARTS_ONLY
+}
+
+model ProductImage {
+  id         String   @id @default(uuid())
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+  type       ImageType
+  path       String
+  fileName   String
+  mimeType   String
+  size       Int
+  isVisible  Boolean
+  uploadedAt DateTime @default(now())
+}
+
+enum ImageType {
+  STOCK
+  MAIN
+  BOX
+  OTHER_1
+  DAMAGE_1
+  DAMAGE_2
+}
+
+// Analytics Models
+
+model WebVitalMetric {
+  id        String   @id @default(uuid())
+  name      String   // CLS, FID, LCP, FCP, TTFB
+  value     Float
+  delta     Float
+  metricId  String
+  timestamp DateTime @default(now())
+  userAgent String?
+  path      String?
+  action    String?
+  label     String?
+  nonInteraction Boolean @default(false)
+}
+
+model PwaEvent {
+  id        String   @id @default(uuid())
+  action    String   // e.g., install, update, uninstall
+  label     String?  // e.g., method, platform
+  value     Float?
+  timestamp DateTime @default(now())
+  userAgent String?
+  path      String?
+  nonInteraction Boolean @default(false)
+}
+
+model ServiceWorkerEvent {
+  id        String   @id @default(uuid())
+  action    String   // e.g., install, activate, update
+  label     String?  // Additional details as JSON string
+  value     Float?
+  timestamp DateTime @default(now())
+  userAgent String?
+  path      String?
+  nonInteraction Boolean @default(false)
+}
+
+model OfflineEvent {
+  id        String   @id @default(uuid())
+  action    String   // e.g., offline_start, offline_end, cached_resource_used
+  label     String?  // Additional details as JSON string
+  value     Float?
+  timestamp DateTime @default(now())
+  userAgent String?
+  path      String?
+  nonInteraction Boolean @default(false)
+}
+
+model UserEvent {
+  id        String   @id @default(uuid())
+  action    String   // e.g., page_view, click, login
+  label     String?  // e.g., button_id, page_name
+  value     Float?
+  timestamp DateTime @default(now())
+  userAgent String?
+  path      String?
+  nonInteraction Boolean @default(false)
+}
+
+model ErrorEvent {
+  id        String   @id @default(uuid())
+  action    String   // e.g., api_error, js_error
+  label     String?  // Error details as JSON string
+  value     Float?
+  timestamp DateTime @default(now())
+  userAgent String?
+  path      String?
+  nonInteraction Boolean @default(false)
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  category  String   // Custom category
+  action    String
+  label     String?
+  value     Float?
+  timestamp DateTime @default(now())
+  userAgent String?
+  path      String?
+  nonInteraction Boolean @default(false)
+}
