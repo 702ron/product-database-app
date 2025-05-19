@@ -7,12 +7,16 @@ import { AuthRequest } from "../middleware/authMiddleware";
 const prisma = new PrismaClient();
 const uploadDir = path.join(__dirname, "../uploads");
 
-export const uploadImage = async (req: AuthRequest, res: Response) => {
+export const uploadImage = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { productId } = req.params;
     const { type, isVisible } = req.body;
     if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+      res.status(400).json({ message: "No file uploaded" });
+      return;
     }
     // Enforce conditional logic for damage images
     if (type === "DAMAGE_1" || type === "DAMAGE_2") {
@@ -20,10 +24,11 @@ export const uploadImage = async (req: AuthRequest, res: Response) => {
         where: { id: productId },
       });
       if (!product || !product.damaged) {
-        return res.status(400).json({
+        res.status(400).json({
           message:
             "Cannot upload damage image unless product is marked as damaged.",
         });
+        return;
       }
     }
     const image = await prisma.productImage.create({
@@ -43,7 +48,10 @@ export const uploadImage = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getImagesForProduct = async (req: Request, res: Response) => {
+export const getImagesForProduct = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { productId } = req.params;
     const images = await prisma.productImage.findMany({ where: { productId } });
@@ -53,20 +61,27 @@ export const getImagesForProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const serveImageFile = (req: Request, res: Response) => {
+export const serveImageFile = (req: Request, res: Response): void => {
   const { fileName } = req.params;
   const filePath = path.join(uploadDir, fileName);
   if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ message: "Image not found" });
+    res.status(404).json({ message: "Image not found" });
+    return;
   }
   res.sendFile(filePath);
 };
 
-export const deleteImage = async (req: AuthRequest, res: Response) => {
+export const deleteImage = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const image = await prisma.productImage.findUnique({ where: { id } });
-    if (!image) return res.status(404).json({ message: "Image not found" });
+    if (!image) {
+      res.status(404).json({ message: "Image not found" });
+      return;
+    }
     // Delete file from disk
     if (fs.existsSync(image.path)) {
       fs.unlinkSync(image.path);
