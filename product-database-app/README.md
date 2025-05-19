@@ -1,6 +1,6 @@
 # Product Database Application
 
-A full-stack web application for managing product information and images with robust user authentication and role-based permissions.
+A full-stack web application for managing product information and images with robust user authentication and role-based permissions. Now with complete Progressive Web App (PWA) capabilities!
 
 ## Project Overview
 
@@ -15,6 +15,12 @@ This application allows internal staff to manage product inventory including pro
 - Search and filtering capabilities
 - Modal-based image gallery system
 - Role-based access control
+- Progressive Web App (PWA) features:
+  - Offline functionality
+  - Install as native app
+  - App updates with What's New guides
+  - Platform-specific installation guides
+  - Caching strategies
 
 ## Tech Stack
 
@@ -26,6 +32,8 @@ This application allows internal staff to manage product inventory including pro
 - React Router
 - React Hook Form
 - Axios
+- Service Workers
+- Web App Manifest
 
 ### Backend
 
@@ -45,10 +53,25 @@ This application allows internal staff to manage product inventory including pro
 
 ```
 product-database-app/
- ├── client/         # React frontend
- ├── server/         # Express backend API
- ├── docker-compose.yml    # Docker configuration
- └── README.md       # Project documentation
+ ├── client/                # React frontend
+ │   ├── public/            # Static assets
+ │   │   ├── manifest.json  # Web App Manifest
+ │   │   └── service-worker.js  # Service Worker
+ │   └── src/               # Source code
+ │       ├── components/    # React components
+ │       │   ├── AppLayout.tsx                     # Main app layout
+ │       │   ├── PWAInstallPrompt.tsx              # Installation prompt
+ │       │   ├── ServiceWorkerUpdateNotification.tsx  # Update notification
+ │       │   └── WhatsNewDialog.tsx                # What's New dialog
+ │       └── serviceWorkerRegistration.ts          # Service worker registration
+ ├── scripts/               # Utility scripts
+ │   ├── create-manifest.js     # Manifest generator
+ │   ├── validate-manifest.js   # Manifest validator
+ │   └── generate-screenshot.js # Screenshot generator
+ ├── server/                # Express backend API
+ ├── docker-compose.yml     # Docker configuration
+ ├── MANIFEST-UPDATES.md    # PWA manifest documentation
+ └── README.md              # Project documentation
 ```
 
 ## Getting Started
@@ -104,6 +127,39 @@ The application uses PostgreSQL with the following core tables:
 - ProductImages - Images associated with products
 
 See `server/prisma/schema.prisma` for the complete database schema.
+
+## PWA Features
+
+The application has been enhanced with Progressive Web App capabilities:
+
+### Installation Experience
+
+- Custom install prompts with platform-specific guidance
+- Native app experience after installation
+- App shortcuts for quick access to key features
+- Designed for both mobile and desktop platforms
+
+### Offline Capability
+
+- Service worker for caching static assets and API responses
+- Offline fallback page when no connection is available
+- Cached resources for continued use without network
+
+### Update Management
+
+- Streamlined update process with step-by-step guidance
+- "What's New" dialog after updates
+- Non-disruptive update notifications
+
+### Manifest Tools
+
+Scripts have been created to help manage the web app manifest:
+
+- `validate-manifest.js` - Validates manifest against PWA requirements
+- `create-manifest.js` - Creates/updates manifest with best practices
+- `generate-screenshot.js` - Generates screenshots for the manifest
+
+See `MANIFEST-UPDATES.md` for detailed information about manifest enhancements.
 
 ## API Documentation
 
